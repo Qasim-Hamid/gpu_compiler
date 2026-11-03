@@ -8,11 +8,18 @@
 
 enum class TokenType {
     IDENTIFIER,
-    // INTEGER,
-    // DOUBLE,
-    ENDOFFILE,
-    KERNEL,
-    ERROR
+    
+    //Keywords
+    KERNEL, 
+
+    //Numerical literals
+    INTEGER, DOUBLE,
+
+    //OPERATORS
+    PLUS, MINUS, EQUAL, MULTIPLY, DIVIDE, MODULO,
+
+    //Misc
+    ENDOFFILE, ERROR
 };
 
 using TokenValue = std::variant<std::monostate, int, double, std::string, char>;

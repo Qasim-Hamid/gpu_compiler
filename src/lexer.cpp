@@ -39,20 +39,38 @@ std::ostream& operator<<(std::ostream& os, const TokenValue& val) {
 
 const char* to_string(TokenType type) {
     switch(type) {
-        // case TokenType::INTEGER:    return "INT"; 
-        // case TokenType::DOUBLE:    return "DBL"; 
         case TokenType::IDENTIFIER:    return "ID"; 
-        case TokenType::ENDOFFILE:    return "EOF"; 
+
+        //keywords
+        case TokenType::INT:     return "INT_TYPE";
+        case TokenType::FLOAT:     return "FLOAT_TYPE";
+        case TokenType::VOID:     return "VOID";
         case TokenType::KERNEL:     return "KER";
-        case TokenType::ERROR:     return "ERR";
+        case TokenType::SHARED:     return "SHARED";
+        case TokenType::GLOBAL:     return "GLOBAL";
+
+        //numeric literals
         case TokenType::INTEGER:    return "INT";
         case TokenType::DOUBLE:    return "DBL";
+
         case TokenType::PLUS:    return "PLUS";
         case TokenType::MINUS:    return "MINUS";
         case TokenType::EQUAL:    return "EQ";
         case TokenType::MULTIPLY:    return "MULTIPLY";
         case TokenType::DIVIDE:    return "DIV";
         case TokenType::MODULO:    return "MOD";
+
+        case TokenType::LEFT_PAREN:    return "LPAREN";
+        case TokenType::RIGHT_PAREN:    return "RPAREN";
+        case TokenType::LEFT_BRACE:    return "LBRACE";
+        case TokenType::RIGHT_BRACE:    return "RBRACE";
+        case TokenType::LEFT_BRACKET:    return "LBRACKET";
+        case TokenType::RIGHT_BRACKET:    return "RBRACKET";
+        case TokenType::COMMA:    return "COMMA";
+        case TokenType::SEMI_COLON:    return "SCOLON";
+
+        case TokenType::ENDOFFILE:    return "EOF"; 
+        case TokenType::ERROR:     return "ERR";
     }
     return "?";
 }
@@ -68,6 +86,12 @@ std::vector<Token> process_input(const std::string& inputString) {
 
     std::unordered_map<std::string, TokenType> keywords;
     keywords["kernel"] = TokenType::KERNEL;
+    keywords["int"] = TokenType::INT;
+    keywords["float"] = TokenType::FLOAT;
+    keywords["void"] = TokenType::VOID;
+    keywords["shared"] = TokenType::SHARED;
+    keywords["global"] = TokenType::GLOBAL;
+
     std::vector<Token> tokenList;
     bool is_double = false;
     bool is_error = false;
@@ -106,6 +130,46 @@ std::vector<Token> process_input(const std::string& inputString) {
 
             case '%': 
                 addToken(TokenType::MODULO, c, &tokenList);
+                i++;
+                break;
+
+            case '(': 
+                addToken(TokenType::LEFT_PAREN, c, &tokenList);
+                i++;
+                break;
+
+            case ')': 
+                addToken(TokenType::RIGHT_PAREN, c, &tokenList);
+                i++;
+                break;
+
+            case '{': 
+                addToken(TokenType::LEFT_BRACE, c, &tokenList);
+                i++;
+                break;
+
+            case '}': 
+                addToken(TokenType::RIGHT_BRACE, c, &tokenList);
+                i++;
+                break;
+
+            case '[': 
+                addToken(TokenType::LEFT_BRACKET, c, &tokenList);
+                i++;
+                break;
+
+            case ']': 
+                addToken(TokenType::RIGHT_BRACKET, c, &tokenList);
+                i++;
+                break;
+
+            case ',': 
+                addToken(TokenType::COMMA, c, &tokenList);
+                i++;
+                break;
+
+            case ';': 
+                addToken(TokenType::SEMI_COLON, c, &tokenList);
                 i++;
                 break;
             
@@ -184,6 +248,10 @@ std::vector<Token> process_input(const std::string& inputString) {
                     if ((i + 1) < size_str && isDigit(inputString[i+1])) {
                         is_double = true;
                         is_error = true;
+                        i++;
+                    }
+                    else {
+                        addToken(TokenType::ERROR, c, &tokenList);
                         i++;
                     }
                 }

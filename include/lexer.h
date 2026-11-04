@@ -10,13 +10,18 @@ enum class TokenType {
     IDENTIFIER,
     
     //Keywords
-    KERNEL, 
+    INT, FLOAT, VOID,
+    KERNEL, SHARED, GLOBAL,
 
     //Numerical literals
     INTEGER, DOUBLE,
 
     //OPERATORS
     PLUS, MINUS, EQUAL, MULTIPLY, DIVIDE, MODULO,
+
+    //PUNCTUTATION
+    LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, 
+    LEFT_BRACKET, RIGHT_BRACKET,  COMMA, SEMI_COLON,
 
     //Misc
     ENDOFFILE, ERROR

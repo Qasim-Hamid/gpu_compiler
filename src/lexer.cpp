@@ -10,6 +10,17 @@ void addToken(TokenType type, TokenValue value, std::vector<Token> *tokens) {
     tokens->push_back({type, value});
 }
 
+bool isBoundary(char c) {
+    return (std::isspace(static_cast<unsigned char>(c)) ||
+            c == '+' || c == '-' ||
+            c == '/' || c == '*' ||
+            c == '=' || c == ';' ||
+            c == '[' || c == ']' ||
+            c == '{' || c == '}' ||
+            c == '(' || c == ')' ||
+            c == ',' || c == '%');
+}
+
 bool isDigit(char c) {
     return (c >= '0' && c <= '9');
 }
@@ -95,8 +106,8 @@ std::vector<Token> process_input(const std::string& inputString) {
     std::vector<Token> tokenList;
     bool is_double = false;
     bool is_error = false;
-    int i = 0;
-    int size_str = inputString.length();
+    size_t i = 0;
+    size_t size_str = inputString.length();
     while (i < size_str) {
 
         char c = inputString[i];
@@ -196,13 +207,9 @@ std::vector<Token> process_input(const std::string& inputString) {
             }
             else if (isDigit(c)) {
                 std::string number;
-                //dot before num
-                if (is_error) {
-                    number += '.';
-                }
                 number += c;
 
-                while (++i < size_str && (isDigit(inputString[i]) || inputString[i] == '.')) {
+                while (++i < size_str) {
 
                     if (inputString[i] == '.') {
                         if (!is_double) {
@@ -222,38 +229,62 @@ std::vector<Token> process_input(const std::string& inputString) {
                             //two dots in same number
                         }
                     }
+
+                    else if (isDigit(inputString[i])) {
+                        number += inputString[i];
+                    }
+
+                    else if (isBoundary(inputString[i])) {
+                        break;
+                    }
+
                     else {
+                        is_error = true;
                         number += inputString[i];
                     }
                 }
+
 
                 if (is_error) {
                     addToken(TokenType::ERROR, number, &tokenList);
                     is_error = false;
                     is_double = false;
                 }
+
                 else if (is_double) {
-                    addToken(TokenType::DOUBLE, std::stod(number), &tokenList);
+                    try {
+                        addToken(TokenType::DOUBLE, std::stod(number), &tokenList);
+                    }
+                    catch (...) {
+                        addToken(TokenType::ERROR, number, &tokenList);
+                    }
                     is_double = false;
                 }
+
                 else {
-                    addToken(TokenType::INTEGER, std::stoi(number), &tokenList);
+                    try {
+                        addToken(TokenType::INTEGER, std::stoi(number), &tokenList);
+                    }
+                    catch (...) {
+                        addToken(TokenType::ERROR, number, &tokenList);
+                    }
                 }
+
             }
             else {
                 if (std::isspace(static_cast<unsigned char>(c))) {
                     i++;
                 }
+                //If start of token is a dot
                 else if (c == '.') {
-                    if ((i + 1) < size_str && isDigit(inputString[i+1])) {
-                        is_double = true;
-                        is_error = true;
+                    std::string dot_error;
+                    while((i < size_str) &&
+                            !(isBoundary(inputString[i]))) {
+                        dot_error += inputString[i];
                         i++;
                     }
-                    else {
-                        addToken(TokenType::ERROR, c, &tokenList);
-                        i++;
-                    }
+                    addToken(TokenType::ERROR, dot_error, &tokenList);
+                    is_error = false;
                 }
                 else {
                     // std::cout << "ERROR\n";

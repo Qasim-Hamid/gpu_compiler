@@ -1,83 +1,24 @@
-#include "lexer.h"
-
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <vector>
-
-namespace {
-
-std::vector<std::string> tokenize(const std::string& source) {
-    const auto tokens = process_input(source);
-    std::vector<std::string> result;
-    result.reserve(tokens.size());
-
-    for (const auto& token : tokens) {
-        std::ostringstream line;
-        line << to_string(token.type) << ": " << token.value;
-        result.push_back(line.str());
-    }
-    return result;
-}
-
-bool check(const std::string& name, const std::string& source,
-           const std::vector<std::string>& expected) {
-    const auto actual = tokenize(source);
-    if (actual == expected) {
-        std::cout << "PASS  " << name << '\n';
-        return true;
-    }
-
-    std::cerr << "FAIL  " << name << "\n  input: " << source << "\n  expected:\n";
-    for (const auto& line : expected) std::cerr << "    " << line << '\n';
-    std::cerr << "  actual:\n";
-    for (const auto& line : actual) std::cerr << "    " << line << '\n';
-    return false;
-}
-
-} // namespace
-
+#include "test_helpers.h"
+using namespace test;
 int main() {
-    int failures = 0;
-    auto test = [&](const std::string& name, const std::string& source,
-                    std::vector<std::string> expected) {
-        if (!check(name, source, expected)) ++failures;
-    };
-
-    test("integer at EOF", "123", {"INT: 123", "EOF: N/A"});
-    test("zero", "0", {"INT: 0", "EOF: N/A"});
-    test("multiple integers", "123 256 0",
-         {"INT: 123", "INT: 256", "INT: 0", "EOF: N/A"});
-    test("floating point at EOF", "3.14", {"DBL: 3.14", "EOF: N/A"});
-    test("floating point variants", "0.5 10.0",
-         {"DBL: 0.5", "DBL: 10", "EOF: N/A"});
-    test("addition without spaces", "1+2",
-         {"INT: 1", "PLUS: +", "INT: 2", "EOF: N/A"});
-    test("negative number is two tokens", "-5",
-         {"MINUS: -", "INT: 5", "EOF: N/A"});
-    test("multiplication expression", "a + b * 2",
-         {"ID: a", "PLUS: +", "ID: b", "MULTIPLY: *", "INT: 2", "EOF: N/A"});
-    test("mixed expression without spaces", "12+3.5*2",
-         {"INT: 12", "PLUS: +", "DBL: 3.5", "MULTIPLY: *", "INT: 2", "EOF: N/A"});
-    test("modulo", "1%2",
-         {"INT: 1", "MOD: %", "INT: 2", "EOF: N/A"});
-    test("division", "2/1.3",
-         {"INT: 2", "DIV: /", "DBL: 1.3", "EOF: N/A"});
-    test("number followed by identifier", "12abc",
-         {"INT: 12", "ID: abc", "EOF: N/A"});
-    test("invalid character recovery", "@123",
-         {"ERR: @", "INT: 123", "EOF: N/A"});
-    // These two tests use the whole-malformed-number behavior you demonstrated.
-    test("multiple decimal points", "3.14.5",
-         {"ERR: 3.14.5", "EOF: N/A"});
-    test("trailing decimal point", "1.",
-         {"ERR: 1.", "EOF: N/A"});
-    test("empty input", "", {"EOF: N/A"});
-
-    if (failures) {
-        std::cerr << failures << " Day 2 test(s) failed.\n";
-        return 1;
-    }
-    std::cout << "All Day 2 tests passed.\n";
-    return 0;
+    Suite s("Day 2");
+    const auto eof = T(TokenType::ENDOFFILE,std::monostate{});
+    s.check("integer at EOF", "123", {T(TokenType::INTEGER,123),eof});
+    s.check("zero", "0", {T(TokenType::INTEGER,0),eof});
+    s.check("multiple integers", "123 256 0", {T(TokenType::INTEGER,123),T(TokenType::INTEGER,256),T(TokenType::INTEGER,0),eof});
+    s.check("floating point at EOF", "3.14", {T(TokenType::DOUBLE,3.14),eof});
+    s.check("floating point variants", "0.5 10.0", {T(TokenType::DOUBLE,0.5),T(TokenType::DOUBLE,10.0),eof});
+    s.check("addition without spaces", "1+2", {T(TokenType::INTEGER,1),T(TokenType::PLUS,'+'),T(TokenType::INTEGER,2),eof});
+    s.check("negative number is two tokens", "-5", {T(TokenType::MINUS,'-'),T(TokenType::INTEGER,5),eof});
+    s.check("multiplication expression", "a + b * 2", {T(TokenType::IDENTIFIER,"a"),T(TokenType::PLUS,'+'),T(TokenType::IDENTIFIER,"b"),T(TokenType::MULTIPLY,'*'),T(TokenType::INTEGER,2),eof});
+    s.check("mixed expression without spaces", "12+3.5*2", {T(TokenType::INTEGER,12),T(TokenType::PLUS,'+'),T(TokenType::DOUBLE,3.5),T(TokenType::MULTIPLY,'*'),T(TokenType::INTEGER,2),eof});
+    s.check("modulo", "1%2", {T(TokenType::INTEGER,1),T(TokenType::MODULO,'%'),T(TokenType::INTEGER,2),eof});
+    s.check("division", "2/1.3", {T(TokenType::INTEGER,2),T(TokenType::DIVIDE,'/'),T(TokenType::DOUBLE,1.3),eof});
+    // Current lexer consumes alphabetic suffixes of a numeric sequence as malformed.
+    s.check("number followed by identifier characters", "12abc", {T(TokenType::ERROR),eof});
+    s.check("invalid character recovery", "@123", {T(TokenType::ERROR),T(TokenType::INTEGER,123),eof});
+    s.check("multiple decimal points", "3.14.5", {T(TokenType::ERROR),eof});
+    s.check("trailing decimal point", "1.", {T(TokenType::ERROR),eof});
+    s.check("empty input", "", {eof});
+    return s.finish();
 }

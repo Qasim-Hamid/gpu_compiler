@@ -32,6 +32,8 @@ using TokenValue = std::variant<std::monostate, int, double, std::string, char>;
 struct Token {
     TokenType type;
     TokenValue value;
+    int line;
+    int column;
 };
 
 void addToken(TokenType type, TokenValue value, std::vector<Token> *tokens);

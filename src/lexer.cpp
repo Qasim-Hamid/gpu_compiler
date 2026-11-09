@@ -114,15 +114,17 @@ void printList(std::vector<Token> tokenList) {
         }
     }
 
-    std::cout << "\n";
-    for (const auto& error : error_list) {
-        std::cout << "<FILENAME>:" 
-            << error.line << ":"
-            << error.column << ": "
-            << "error: "
-            << error.value;
+    if (!error_list.empty()) {
+        std::cout << "\n";
+        for (const auto& error : error_list) {
+            std::cout << "<FILENAME>:" 
+                << error.line << ":"
+                << error.column << ": "
+                << "error: "
+                << error.value;
+        }
+        std::cout << "\n";
     }
-    std::cout << "\n";
 }
 
 std::vector<Token> process_input(const std::string& inputString) {
@@ -177,6 +179,43 @@ std::vector<Token> process_input(const std::string& inputString) {
                 break;
 
             case '/': 
+
+                if (i+1 < size_str && inputString[i+1] == '/') {
+                    while (++i < size_str && inputString[i] != '\n');           
+                    if (inputString[i] == '\n') {
+                        line++;
+                        column = 1;
+                    }
+                    break;
+                }
+
+                else if (i+1 < size_str && inputString[i+1] == '*') {
+                    while (++i < size_str) {
+
+                        // std::cout << "\nSTRING: " << inputString[i];
+                        if (inputString[i] == '*') {
+                            if ((i+1 < size_str) && inputString[i+1] == '/') {
+                                i += 2;
+                                // std::cout << "\nPASSING\n";
+                                char_count += 2;
+                                break;
+                            }
+                        }
+
+                        if (inputString[i] == '\n'){
+                            line++;
+                            column = 1;
+                        }
+                        
+                        else {
+                            char_count++;
+                        }
+
+                    }
+                    break;
+
+                }
+
                 addToken(TokenType::DIVIDE, c, &tokenList, line, column);
                 i++;
                 column++;

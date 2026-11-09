@@ -34,7 +34,10 @@ bool isBoundary(char c, bool *is_newline, bool *is_tab, bool *is_space) {
             c == '[' || c == ']' ||
             c == '{' || c == '}' ||
             c == '(' || c == ')' ||
-            c == ',' || c == '%');
+            c == '<' || c == '>' ||
+            c == '=' || c == '!' ||
+            c == '&' || c == ',' ||
+            c == '%');
 }
 
 bool isDigit(char c) {
@@ -86,6 +89,17 @@ const char* to_string(TokenType type) {
         case TokenType::MULTIPLY:    return "MULTIPLY";
         case TokenType::DIVIDE:    return "DIV";
         case TokenType::MODULO:    return "MOD";
+
+        case TokenType::BANG:    return "BANG";
+        case TokenType::BANG_EQUAL:    return "BANG_EQUAL";
+        case TokenType::EQUAL_EQUAL:    return "EQUAL_EQUAL";
+        case TokenType::GREATER:    return "GREATER";
+        case TokenType::GREATER_EQUAL:    return "GREATER_EQUAL";
+        case TokenType::LESS:    return "LESS";
+        case TokenType::LESS_EQUAL:    return "LESS_EQUAL";
+        case TokenType::AND:    return "AND";
+        case TokenType::AND_AND:    return "AND_AND";
+        case TokenType::OR_OR:    return "OR_OR";
 
         case TokenType::LEFT_PAREN:    return "LPAREN";
         case TokenType::RIGHT_PAREN:    return "RPAREN";
@@ -167,7 +181,17 @@ std::vector<Token> process_input(const std::string& inputString) {
                 break;
 
             case '=': 
-                addToken(TokenType::EQUAL, c, &tokenList, line, column);
+
+                if (i+1 < size_str && inputString[i+1] == '=') {
+                    addToken(TokenType::EQUAL_EQUAL, "==", &tokenList, line, column);
+                    i++;
+                    column++;
+                }
+
+                else {
+                    addToken(TokenType::EQUAL, c, &tokenList, line, column);
+                }
+
                 i++;
                 column++;
                 break;
@@ -298,6 +322,88 @@ std::vector<Token> process_input(const std::string& inputString) {
                 i++;
                 column++;
                 break;
+
+            case '!':
+
+                if (i+1 < size_str && inputString[i+1] == '=') {
+                    addToken(TokenType::BANG_EQUAL, "!=", &tokenList, line, column);
+                    i++;
+                    column++;
+                }
+
+                else {
+                    addToken(TokenType::BANG, c, &tokenList, line, column);
+                }
+
+                i++;
+                column++;
+                break;
+
+            case '<':
+
+                if (i+1 < size_str && inputString[i+1] == '=') {
+                    addToken(TokenType::LESS_EQUAL, "<=", &tokenList, line, column);
+                    i++;
+                    column++;
+                }
+
+                else {
+                    addToken(TokenType::LESS, c, &tokenList, line, column);
+                }
+
+                i++;
+                column++;
+                break;
+
+            case '>':
+
+                if (i+1 < size_str && inputString[i+1] == '=') {
+                    addToken(TokenType::GREATER_EQUAL, ">=", &tokenList, line, column);
+                    i++;
+                    column++;
+                }
+
+                else {
+                    addToken(TokenType::GREATER, c, &tokenList, line, column);
+                }
+
+                i++;
+                column++;
+                break;
+
+            case '&':
+
+                if (i+1 < size_str && inputString[i+1] == '&') {
+                    addToken(TokenType::AND_AND, "&&", &tokenList, line, column);
+                    i++;
+                    column++;
+                }
+
+                else {
+                    addToken(TokenType::AND, c, &tokenList, line, column);
+                }
+
+                i++;
+                column++;
+                break;
+
+            case '|':
+
+                if (i+1 < size_str && inputString[i+1] == '|') {
+                    addToken(TokenType::OR_OR, "||", &tokenList, line, column);
+                    i++;
+                    column++;
+                }
+
+                else {
+                    std::string error = "No '|' operator";
+                    addToken(TokenType::ERROR, error, &tokenList, line, column);
+                }
+
+                i++;
+                column++;
+                break;
+
             
             default:
             if (isAlpha(c)) {
@@ -473,9 +579,8 @@ std::vector<Token> process_input(const std::string& inputString) {
                         char_count += 1;
                     }
                     else {
-                        char_count++;
                     }
-                    std::string error_type = "No support for tokens starting with '.'";
+                    std::string error_type = "No support for tokens starting with '.': ";
                     dot_error.insert(0, error_type);
                     addToken(TokenType::ERROR, dot_error, &tokenList, line, column);
                     column += char_count;

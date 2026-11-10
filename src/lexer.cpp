@@ -101,6 +101,14 @@ const char* to_string(TokenType type) {
         case TokenType::AND_AND:    return "AND_AND";
         case TokenType::OR_OR:    return "OR_OR";
 
+        case TokenType::PLUS_EQUAL:    return "PLUS_EQUAL";
+        case TokenType::MINUS_EQUAL:    return "MINUS_EQUAL";
+        case TokenType::STAR_EQUAL:    return "STAR_EQUAL";
+        case TokenType::SLASH_EQUAL:    return "SLASH_EQUAL";
+        case TokenType::MOD_EQUAL:    return "MOD_EQUAL";
+        case TokenType::PLUS_PLUS:    return "PLUS_PLUS";
+        case TokenType::MINUS_MINUS:    return "MINUS_MINUS";
+
         case TokenType::IF:    return "IF";
         case TokenType::ELSE:    return "ELSE";
         case TokenType::FOR:    return "FOR";
@@ -184,13 +192,45 @@ std::vector<Token> process_input(const std::string& inputString) {
             //Add all special chars here
 
             case '+': 
-                addToken(TokenType::PLUS, c, &tokenList, line, column);
+
+                if (i+1 < size_str && inputString[i+1] == '=') {
+                    addToken(TokenType::PLUS_EQUAL, "+=", &tokenList, line, column);
+                    i++;
+                    column++;
+                }
+
+                else if (i+1 < size_str && inputString[i+1] == '+') {
+                    addToken(TokenType::PLUS_PLUS, "++", &tokenList, line, column);
+                    i++;
+                    column++;
+                }
+
+                else {
+                    addToken(TokenType::PLUS, c, &tokenList, line, column);
+                }
+
                 i++;
                 column++;
                 break;
 
             case '-': 
-                addToken(TokenType::MINUS, c, &tokenList, line, column);
+
+                if (i+1 < size_str && inputString[i+1] == '=') {
+                    addToken(TokenType::MINUS_EQUAL, "-=", &tokenList, line, column);
+                    i++;
+                    column++;
+                }
+
+                else if (i+1 < size_str && inputString[i+1] == '-') {
+                    addToken(TokenType::MINUS_MINUS, "--", &tokenList, line, column);
+                    i++;
+                    column++;
+                }
+
+                else {
+                    addToken(TokenType::MINUS, c, &tokenList, line, column);
+                }
+
                 i++;
                 column++;
                 break;
@@ -212,14 +252,31 @@ std::vector<Token> process_input(const std::string& inputString) {
                 break;
 
             case '*': 
-                addToken(TokenType::MULTIPLY, c, &tokenList, line, column);
+
+                if (i+1 < size_str && inputString[i+1] == '=') {
+                    addToken(TokenType::STAR_EQUAL, "*=", &tokenList, line, column);
+                    i++;
+                    column++;
+                }
+
+                else {
+                    addToken(TokenType::MULTIPLY, c, &tokenList, line, column);
+                }
+
                 i++;
                 column++;
                 break;
 
             case '/': 
 
-                if (i+1 < size_str && inputString[i+1] == '/') {
+                if (i+1 < size_str && inputString[i+1] == '=') {
+                    addToken(TokenType::SLASH_EQUAL, "/=", &tokenList, line, column);
+                    i+=2;;
+                    column+=2;
+                    break;
+                }
+
+                else if (i+1 < size_str && inputString[i+1] == '/') {
                     while (++i < size_str && inputString[i] != '\n') {
                         char_count++;
                     }
@@ -285,7 +342,17 @@ std::vector<Token> process_input(const std::string& inputString) {
                 break;
 
             case '%': 
-                addToken(TokenType::MODULO, c, &tokenList, line, column);
+
+                if (i+1 < size_str && inputString[i+1] == '=') {
+                    addToken(TokenType::MOD_EQUAL, "%=", &tokenList, line, column);
+                    i++;
+                    column++;
+                }
+
+                else {
+                    addToken(TokenType::MODULO, c, &tokenList, line, column);
+                }
+
                 i++;
                 column++;
                 break;

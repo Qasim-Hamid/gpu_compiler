@@ -101,6 +101,13 @@ const char* to_string(TokenType type) {
         case TokenType::AND_AND:    return "AND_AND";
         case TokenType::OR_OR:    return "OR_OR";
 
+        case TokenType::IF:    return "IF";
+        case TokenType::ELSE:    return "ELSE";
+        case TokenType::FOR:    return "FOR";
+        case TokenType::WHILE:    return "WHILE";
+
+        case TokenType::BOOLEAN:    return "BOOLEAN";
+
         case TokenType::LEFT_PAREN:    return "LPAREN";
         case TokenType::RIGHT_PAREN:    return "RPAREN";
         case TokenType::LEFT_BRACE:    return "LBRACE";
@@ -150,6 +157,14 @@ std::vector<Token> process_input(const std::string& inputString) {
     keywords["void"] = TokenType::VOID;
     keywords["shared"] = TokenType::SHARED;
     keywords["global"] = TokenType::GLOBAL;
+
+    keywords["if"] = TokenType::IF;
+    keywords["else"] = TokenType::ELSE;
+    keywords["for"] = TokenType::FOR;
+    keywords["while"] = TokenType::WHILE;
+
+    keywords["true"] = TokenType::BOOLEAN;
+    keywords["false"] = TokenType::BOOLEAN;
 
     std::vector<Token> tokenList;
     bool is_double = false;
@@ -419,7 +434,14 @@ std::vector<Token> process_input(const std::string& inputString) {
 
                 if(auto search = keywords.find(identifier);
                         search != keywords.end()) {
-                    addToken(search->second, search->first, &tokenList, line, column);
+
+                    if (search->second == TokenType::BOOLEAN) {
+                        addToken(search->second, (search->first == "true"), &tokenList, line, column);
+                    }
+
+                    else {
+                        addToken(search->second, search->first, &tokenList, line, column);
+                    }
                     column += char_count;
                     char_count = 0;
                 }

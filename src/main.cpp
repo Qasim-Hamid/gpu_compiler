@@ -2,6 +2,8 @@
 
 int main(int argc, char* argv[]) {
 
+    TokenValue v = true;
+
     std::string input_string;
 
     for (int i = 1; i < argc; i++) {

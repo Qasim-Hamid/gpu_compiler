@@ -12,7 +12,11 @@ enum class TokenType {
     //Keywords
     INT, FLOAT, VOID,
     KERNEL, SHARED, GLOBAL,
+    IF, ELSE, FOR, WHILE,
 
+    //BOOL LITERALS
+    BOOLEAN,
+    
     //Numerical literals
     INTEGER, DOUBLE,
 
@@ -30,7 +34,7 @@ enum class TokenType {
     ENDOFFILE, ERROR
 };
 
-using TokenValue = std::variant<std::monostate, int, double, std::string, char>;
+using TokenValue = std::variant<std::monostate, int, double, std::string, char, bool>;
 
 struct Token {
     TokenType type;

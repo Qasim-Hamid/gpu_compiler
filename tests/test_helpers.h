@@ -117,6 +117,8 @@ public:
                 std::cerr << "  token #" << i << ": type expected=" << static_cast<int>(e.type)
                           << " actual=" << static_cast<int>(a.type) << '\n';
                 if (e.value) { std::cerr << "    value expected="; show_value(*e.value);
+                                std::cerr << "Expected index: " << e.value->index() << '\n';
+                                std::cerr << "Actual index: " << a.value.index() << '\n';
                                std::cerr << " actual="; show_value(a.value); std::cerr << '\n'; }
                 if (e.line || e.column) {
                     std::cerr << "    position expected=" << e.line << ':' << e.column

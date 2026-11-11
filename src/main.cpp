@@ -1,4 +1,6 @@
 #include "../include/lexer.h"
+#include <fstream>
+#include <sstream>
 
 int main(int argc, char* argv[]) {
 
@@ -12,20 +14,32 @@ int main(int argc, char* argv[]) {
             input_string += " ";
         }
     }
+    std::string filename = "cmdline_input";
+
     std::vector<Token> token_list = process_input(input_string);
-    printList(token_list);
-    // std::vector<std::string> str_list = {"int x;", "float* ptr;", 
-    // "void foo()", "shared float data[256];", "global int* output;",
-    // "kernel", "kernel123", "float32", "vector_add(a,b);", 
-    // "()", "{}", ""};
+    bool has_error = false;
+    printList(token_list, filename, &has_error);
 
-    // for (const std::string& arg: str_list) {
-    //     std::cout << "\narg: " << arg << "\n";
-    //     std::vector<Token> token_list = process_input(arg);
-    //     printList(token_list);
+    //
+    // std::string filename = argv[1];
+    // std::ifstream file(filename);
+
+    // if (!file.is_open()) {
+    //     std::cerr << "Error: Couldn't open file:  '" << filename << "'\n";
     // }
-    // std::string test_str = "123.";
-    // std::vector<Token> token_list = process_input(test_str);
 
+    // std::stringstream buffer;
+    // buffer << file.rdbuf();
+
+    // std::string raw_text = buffer.str();
+    
+    // std::vector<Token> token_list = process_input(raw_text);
+    // bool has_error = false;
+    // printList(token_list, filename, &has_error);
+
+
+    if (has_error) {
+        return 1;
+    }
     return 0;
 }

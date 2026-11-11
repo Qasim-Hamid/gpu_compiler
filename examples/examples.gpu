@@ -1,0 +1,13 @@
+// Elementwise vector addition
+kernel vector_add(
+    global float* a,
+    global float* b,
+    global float* c,
+    int n
+) {
+    int i = global_id();
+
+    if (i < n) {
+        c[i] = a[i] + b[i];
+    }
+}

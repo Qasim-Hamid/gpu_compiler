@@ -1,0 +1,7 @@
+kernel broken(float* a, int n) {
+    int i = global_id();
+
+    // Invalid character
+    @
+
+    /* Unterminated comment

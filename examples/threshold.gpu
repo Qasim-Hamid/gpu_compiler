@@ -1,0 +1,15 @@
+kernel threshold(
+    global float* input,
+    global float* output,
+    int n
+) {
+    int i = global_id();
+
+    if (i < n) {
+        if (input[i] > 0.5) {
+            output[i] = input[i];
+        } else {
+            output[i] = 0.0;
+        }
+    }
+}

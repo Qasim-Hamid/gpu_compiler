@@ -13,10 +13,11 @@ DAY6_TEST := $(BUILD_DIR)/test_lexer_day6
 DAY7_TEST := $(BUILD_DIR)/test_lexer_day7
 DAY8_TEST := $(BUILD_DIR)/test_lexer_day8
 DAY9_TEST := $(BUILD_DIR)/test_lexer_day9
+DAY10_TEST := $(BUILD_DIR)/test_lexer_day10
 LEXER_SRC := src/lexer.cpp
 LEXER_HEADER := include/lexer.h
 
-.PHONY: all test test-day1 test-day2 test-day3 test-day4 test-day5 test-day6 test-day7 test-day8 test-day9 clean
+.PHONY: all test test-day1 test-day2 test-day3 test-day4 test-day5 test-day6 test-day7 test-day8 test-day9 test-day10 clean
 
 all: $(APP)
 
@@ -80,7 +81,13 @@ test-day9: $(DAY9_TEST)
 $(DAY9_TEST): tests/test_lexer_day9.cpp tests/test_helpers.h $(LEXER_SRC) $(LEXER_HEADER) | $(BUILD_DIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) tests/test_lexer_day9.cpp $(LEXER_SRC) -o $@
 
-test: test-day1 test-day2 test-day3 test-day4 test-day5 test-day6 test-day7 test-day8 test-day9
+$(DAY10_TEST): tests/test_lexer_day10.cpp tests/test_helpers.h $(LEXER_SRC) $(LEXER_HEADER) | $(BUILD_DIR)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) tests/test_lexer_day10.cpp $(LEXER_SRC) -o $@
+
+test-day10: $(DAY10_TEST)
+	./$(DAY10_TEST)
+
+test: test-day1 test-day2 test-day3 test-day4 test-day5 test-day6 test-day7 test-day8 test-day9 test-day10
 
 clean:
 	rm -rf $(BUILD_DIR) $(APP)

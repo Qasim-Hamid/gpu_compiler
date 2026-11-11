@@ -37,7 +37,7 @@ bool isBoundary(char c, bool *is_newline, bool *is_tab, bool *is_space) {
             c == '<' || c == '>' ||
             c == '=' || c == '!' ||
             c == '&' || c == ',' ||
-            c == '%');
+            c == '|' || c == '%');
 }
 
 bool isDigit(char c) {
@@ -131,7 +131,7 @@ const char* to_string(TokenType type) {
     return "?";
 }
 
-void printList(std::vector<Token> tokenList) {
+void printList(std::vector<Token> tokenList, std::string filename, bool *has_error) {
     std::vector<Token> error_list;
     for (const auto& token : tokenList) {
         std::cout << token.line << ":"
@@ -144,15 +144,16 @@ void printList(std::vector<Token> tokenList) {
     }
 
     if (!error_list.empty()) {
+        *has_error = true;
         std::cout << "\n";
         for (const auto& error : error_list) {
-            std::cout << "<FILENAME>:" 
+            std::cout << "<" << filename << "> "
                 << error.line << ":"
                 << error.column << ": "
                 << "error: "
                 << error.value;
+                std::cout << "\n";
         }
-        std::cout << "\n";
     }
 }
 
@@ -185,6 +186,7 @@ std::vector<Token> process_input(const std::string& inputString) {
     int line = 1;
     int column = 1;
     int char_count = 0;
+    int line_count = 0;
     while (i < size_str) {
 
         char c = inputString[i];
@@ -560,18 +562,17 @@ std::vector<Token> process_input(const std::string& inputString) {
 //NOTE: Potentially remove boundary handling from here?
 
                     else if (isBoundary(inputString[i], &is_newline, &is_tab, &is_space)) {
-                        if (is_newline) {
-                            is_newline = false;
-                            line++;
-                            column = 1;
-                        }
-                        else if (is_tab) {
-                            is_tab = false;
-                            char_count += 4;
-                        }
-                        else if (is_space) {
+                        // if (is_newline) {
+                        //     is_newline = false;
+                        //     line_count++;
+                        // }
+                        // if (is_tab) {
+                        //     is_tab = false;
+                        //     char_count += 4;
+                        // }
+                        if (is_space) {
                             is_space = false;
-                            char_count += 1;
+                            // char_count += 1;
                         }
                         break;
                     }
